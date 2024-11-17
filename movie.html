@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>영화 정보</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 20px;
+        }
+        input[type="text"] {
+            padding: 5px;
+            font-size: 16px;
+        }
+        button {
+            padding: 10px 15px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .movie-info {
+            margin-top: 20px;
+        }
+        .error {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>영화 정보 검색</h1>
+    <input type="text" id="movie-title" placeholder="영화 제목을 입력하세요">
+    <button onclick="getMovieInfo()">영화 정보 찾기</button>
+
+    <div class="movie-info" id="movie-info"></div>
+
+    <script>
+        // API 키를 코드 상단에 문자열로 선언
+        const apiKey = 'b722caee585132c6113a776b0f63daf4';  // 여기에 발급받은 TMDb API 키를 넣으세요.
+
+        async function getMovieInfo() {
+            const title = document.getElementById('movie-title').value;
+            if (!title) {
+                alert('영화 제목을 입력하세요.');
+                return;
+            }
+
+            const url = `https://api.themoviedb.org/3/search/movie?query=${title}&api_key=${apiKey}&language=ko`;
+
+            try {
+                const response = await fetch(url);
+                if (!response.ok) {
+                    throw new Error('영화 정보를 불러올 수 없습니다.');
+                }
+                const data = await response.json();
+                displayMovieInfo(data.results[0]);
+            } catch (error) {
+                document.getElementById('movie-info').innerHTML = `<p class="error">${error.message}</p>`;
+            }
+        }
+
+        function displayMovieInfo(movie) {
+            const movieDiv = document.getElementById('movie-info');
+            if (!movie || !movie.title) {
+                movieDiv.innerHTML = '<p class="error">영화를 찾을 수 없습니다.</p>';
+                return;
+            }
+
+            const title = movie.title;
+            const overview = movie.overview;
+            const posterPath = `https://image.tmdb.org/t/p/w500${movie.poster_path}`;
+            movieDiv.innerHTML = `
+                <h2>${title}</h2>
+                <img src="${posterPath}" alt="${title}" style="width: 200px; height: auto;">
+                <p>${overview}</p>
+            `;
+        }
+    </script>
+
+</body>
+</html>
+
